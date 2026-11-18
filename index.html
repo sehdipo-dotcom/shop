@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>إدارة محل الحديد والمواد</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0284c7">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary: #0284c7;
+            --primary-dark: #0369a1;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #ca8a04;
+            --bg: #f8fafc;
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --nav-bg: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --primary: #38bdf8;
+            --primary-dark: #0ea5e9;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #eab308;
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --nav-bg: #1e293b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-size: 16px;
+            padding-bottom: 80px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 12px;
+        }
+
+        header {
+            background: var(--card-bg);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            font-size: 1.25rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .header-actions button {
+            background: none;
+            border: none;
+            font-size: 1.25rem;
+            cursor: pointer;
+            padding: 6px;
+            color: var(--text);
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--nav-bg);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 1000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            flex: 1;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item span.icon {
+            font-size: 1.4rem;
+            margin-bottom: 2px;
+        }
+
+        /* Views */
+        .view {
+            display: none;
+        }
+
+        .view.active {
+            display: block;
+        }
+
+        /* Cards & UI Elements */
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            transition: background 0.2s;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-success { background: var(--success); }
+        .btn-danger { background: var(--danger); }
+        .btn-warning { background: var(--warning); }
+        .btn-secondary { background: var(--text-muted); }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--card-bg);
+            color: var(--text);
+            font-size: 1rem;
+            margin-bottom: 10px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: 2px solid var(--primary);
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .flex-between {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .badge-success { background: rgba(22, 163, 74, 0.15); color: var(--success); }
+        .badge-danger { background: rgba(220, 38, 38, 0.15); color: var(--danger); }
+        .badge-warning { background: rgba(202, 138, 4, 0.15); color: var(--warning); }
+
+        /* Quick Sell Grid */
+        .pos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+            gap: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+            padding: 4px;
+        }
+
+        .pos-item-card {
+            background: var(--card-bg);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.1s;
+        }
+
+        .pos-item-card:active {
+            border-color: var(--primary);
+            background: rgba(2, 132, 199, 0.05);
+        }
+
+        .pos-item-card .item-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .pos-item-card .item-price {
+            font-size: 0.85rem;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .pos-item-card .item-stock {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Cart table */
+        .cart-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 12px;
+        }
+
+        .cart-table th, .cart-table td {
+            padding: 8px;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 75px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #0f172a;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9rem;
+        }
+
+        #toast.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #toast button {
+            background: var(--primary);
+            border: none;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .search-box input {
+            margin-bottom: 0;
+            padding-right: 36px;
+        }
+
+        .search-box span {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body data-theme="light">
+
+    <header>
+        <h1 id="shop-title">محل الحديد والمواد</h1>
+        <div class="header-actions">
+            <button id="pin-lock-btn" title="قفل برقم سرّي" onclick="app.promptPin()">🔒</button>
+            <button id="theme-toggle" title="تغيير المظهر" onclick="app.toggleTheme()">🌙</button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- HOME VIEW -->
+        <div id="view-home" class="view active">
+            <div class="card">
+                <h3 style="margin-bottom: 10px; color: var(--primary);">ملخص اليوم</h3>
+                <div class="grid-2">
+                    <div style="background: rgba(2, 132, 199, 0.1); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">مبيعات اليوم</div>
+                        <div id="home-today-sales" style="font-size: 1.2rem; font-weight: 900; color: var(--primary);">0</div>
+                    </div>
+                    <div style="background: rgba(22, 163, 74, 0.1); padding: 12px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">أرباح اليوم</div>
+                        <div id="home-today-profit" style="font-size: 1.2rem; font-weight: 900; color: var(--success);">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="alerts-card">
+                <h3 style="margin-bottom: 10px; color: var(--warning);">⚠️ تنبيهات الهامّة</h3>
+                <div id="alerts-list">
+                    <p style="color: var(--text-muted); font-size: 0.9rem;">لا توجد تنبيهات حالياً.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 10px;">إجراءات سريعة</h3>
+                <div class="grid-2">
+                    <button class="btn" onclick="app.switchView('sell')">🛒 بيع سريع (POS)</button>
+                    <button class="btn btn-success" onclick="app.openCustomerModal()">➕ فاتورة عميل</button>
+                    <button class="btn btn-warning" onclick="app.switchView('accounts')">👥 الحسابات والديون</button>
+                    <button class="btn btn-secondary" onclick="app.switchView('reports')">📊 التقارير والأرباح</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SELL VIEW (POS) -->
+        <div id="view-sell" class="view">
+            <div class="card">
+                <div class="flex-between" style="margin-bottom: 10px;">
+                    <h3 style="color: var(--primary);">شاشة البيع السريع</h3>
+                    <button class="btn" style="width: auto; padding: 6px 12px; font-size: 0.85rem;" onclick="app.openInlineItemModal()">➕ صنف جديد</button>
+                </div>
+
+                <div class="search-box">
+                    <span>🔍</span>
+                    <input type="text" id="pos-search" placeholder="ابحث عن صنف بالاسم أو الباركود..." oninput="app.filterPosItems(this.value)">
+                </div>
+
+                <div id="pos-barcode-container" style="margin-bottom: 10px; display: none;">
+                    <button class="btn btn-secondary" onclick="app.startBarcodeScanner()">📷 مسح باركود بالكاميرا</button>
+                </div>
+
+                <!-- Favorite / Quick Grid -->
+                <div class="pos-grid" id="pos-grid"></div>
+            </div>
+
+            <div class="card">
+                <h3>سلة المشتريات</h3>
+                <div style="max-height: 200px; overflow-y: auto;">
+                    <table class="cart-table">
+                        <thead>
+                            <tr>
+                                <th>الصنف</th>
+                                <th>السعر</th>
+                                <th>الكمية</th>
+                                <th>المجموع</th>
+                                <th>حذف</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-items-body">
+                            <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">السلة فارغة</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 10px; border-top: 2px solid var(--border); padding-top: 10px;">
+                    <div class="flex-between" style="margin-bottom: 6px;">
+                        <span>نوع الفاتورة:</span>
+                        <select id="invoice-type" style="width: 150px; margin-bottom: 0;" onchange="app.toggleInvoiceType()">
+                            <option value="cash">نقدي (كاش)</option>
+                            <option value="credit">آجل (على الذمة)</option>
+                        </select>
+                    </div>
+
+                    <div id="customer-select-container" style="margin-bottom: 6px; display: none;">
+                        <select id="invoice-customer-id">
+                            <option value="">-- اختر العميل --</option>
+                        </select>
+                    </div>
+
+                    <div class="grid-2" style="margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted);">خصم (قيمة أو %)</label>
+                            <input type="text" id="invoice-discount" placeholder="مثال: 10 أو 5%" value="0" oninput="app.updateCartTotals()">
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--text-muted);">المبلغ المدفوع</label>
+                            <input type="number" id="invoice-paid" placeholder="المبلغ" value="0" oninput="app.updateCartTotals()">
+                        </div>
+                    </div>
+
+                    <div class="flex-between" style="font-size: 1.1rem; font-weight: 900; margin-bottom: 12px;">
+                        <span>المجموع النهائي:</span>
+                        <span id="cart-grand-total" style="color: var(--primary);">0</span>
+                    </div>
+
+                    <div class="flex-between" style="font-size: 0.9rem; margin-bottom: 12px; color: var(--text-muted);">
+                        <span>الباقي (دين):</span>
+                        <span id="cart-remainder">0</span>
+                    </div>
+
+                    <button class="btn btn-success" style="font-size: 1.1rem; padding: 12px;" onclick="app.completeSale()">✅ إتمام البيع</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ITEMS VIEW -->
+        <div id="view-items" class="view">
+            <div class="card">
+                <div class="flex-between" style="margin-bottom: 12px;">
+                    <h3 style="color: var(--primary);">إدارة الأصناف والمخزن</h3>
+                    <button class="btn" style="width: auto;" onclick="app.openItemModal()">➕ صنف جديد</button>
+                </div>
+
+                <div class="search-box">
+                    <span>🔍</span>
+                    <input type="text" id="items-search" placeholder="بحث في الأصناف..." oninput="app.renderItemsList(this.value)">
+                </div>
+
+                <div id="items-list" style="margin-top: 10px;"></div>
+            </div>
+        </div>
+
+        <!-- ACCOUNTS VIEW -->
+        <div id="view-accounts" class="view">
+            <div class="card">
+                <div class="flex-between" style="margin-bottom: 12px;">
+                    <h3 style="color: var(--primary);">العملاء والموردين</h3>
+                    <button class="btn" style="width: auto;" onclick="app.openPersonModal()">➕ إضافة عميل/مورد</button>
+                </div>
+
+                <div class="search-box">
+                    <span>🔍</span>
+                    <input type="text" id="accounts-search" placeholder="بحث بالاسم أو رقم الهاتف..." oninput="app.renderAccountsList(this.value)">
+                </div>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <button class="btn" style="flex: 1; padding: 8px; font-size: 0.9rem;" id="filter-all-persons" onclick="app.setPersonFilter('all')">الكل</button>
+                    <button class="btn btn-secondary" style="flex: 1; padding: 8px; font-size: 0.9rem;" id="filter-customers" onclick="app.setPersonFilter('customer')">العملاء</button>
+                    <button class="btn btn-secondary" style="flex: 1; padding: 8px; font-size: 0.9rem;" id="filter-suppliers" onclick="app.setPersonFilter('supplier')">الموردين</button>
+                </div>
+
+                <div id="accounts-list"></div>
+            </div>
+        </div>
+
+        <!-- REPORTS VIEW -->
+        <div id="view-reports" class="view">
+            <div class="card">
+                <h3 style="margin-bottom: 12px; color: var(--primary);">التقارير الشاملة</h3>
+
+                <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                    <button class="btn" style="flex: 1; padding: 8px;" onclick="app.loadReport('daily')">يومي</button>
+                    <button class="btn btn-secondary" style="flex: 1; padding: 8px;" onclick="app.loadReport('weekly')">أسبوعي</button>
+                    <button class="btn btn-secondary" style="flex: 1; padding: 8px;" onclick="app.loadReport('monthly')">شهري</button>
+                </div>
+
+                <div id="report-content">
+                    <!-- Report stats inserted here -->
+                </div>
+
+                <div style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+                    <h4 style="margin-bottom: 8px;">إدارة البيانات والإقفال</h4>
+                    <div class="grid-2">
+                        <button class="btn btn-warning" onclick="app.openDailyCloseModal()">🌙 إقفال اليوم</button>
+                        <button class="btn btn-secondary" onclick="app.openExpensesModal()">💸 المصاريف</button>
+                    </div>
+                    <div class="grid-2" style="margin-top: 8px;">
+                        <button class="btn" style="background: #0d9488;" onclick="app.exportDataJSON()">💾 تصدير نسخة احتياطية</button>
+                        <button class="btn btn-secondary" onclick="app.triggerImportJSON()">📂 استعادة نسخة</button>
+                        <input type="file" id="import-file-input" style="display: none;" onchange="app.importDataJSON(event)">
+                    </div>
+                    <div style="margin-top: 8px;">
+                        <button class="btn btn-success" onclick="app.exportReportExcel()">📊 تصدير التقارير (CSV)</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="app.switchView('home')">
+            <span class="icon">🏠</span>
+            <span>الرئيسية</span>
+        </button>
+        <button class="nav-item" onclick="app.switchView('sell')">
+            <span class="icon">🛒</span>
+            <span>بيع</span>
+        </button>
+        <button class="nav-item" onclick="app.switchView('items')">
+            <span class="icon">📦</span>
+            <span>المخزن</span>
+        </button>
+        <button class="nav-item" onclick="app.switchView('accounts')">
+            <span class="icon">👥</span>
+            <span>الحسابات</span>
+        </button>
+        <button class="nav-item" onclick="app.switchView('reports')">
+            <span class="icon">📊</span>
+            <span>التقارير</span>
+        </button>
+    </nav>
+
+    <!-- Toast Notification -->
+    <div id="toast">
+        <span id="toast-msg">تمت العملية بنجاح</span>
+        <button id="toast-undo" style="display: none;" onclick="app.undoLastAction()">تراجع</button>
+    </div>
+
+    <!-- App JavaScript Logic -->
+    <script src="app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js').then(() => {
+                console.log('Service Worker Registered');
+            });
+        }
+    </script>
+</body>
+</html>
